@@ -39,6 +39,8 @@ class ClientConnectScript(ovpnscript.OpenVPNScript):
         if any([not x in self.config for x in ldapconfigkeys]):
             self.exit1('missing ldap config key, need %s' % ldapconfigkeys)
 
+    def exit_error(self, msg=None):
+        self.write_cc(disable=True)
 
     def check_group_member(self, con, userDN, cn, username):
 
@@ -173,17 +175,23 @@ class ClientConnectScript(ovpnscript.OpenVPNScript):
 
 
 
-    def write_cc(self, cc_file, ip, mask):
+    def write_cc(self, ip=None, mask=None, disable=False):
 
-        if ip is None or mask is None:
-            content = ''
-        else:
+        if disable:
+            content = "disable"
+        elif ip is not None and mask is not None:
             content = ('ifconfig-push %s %s\npush "route-gateway %s"\n'  % (ip, mask, ip))
-        with open(cc_file, 'w') as f:
-            f.write(content)
+        else:
+            return
+        if self.cc_file is not None:
+            with open(self.cc_file, 'w') as f:
+                f.write(content)
 
 
     def cc(self, action, cc_file=None):
+
+        # file the connect script needs to generate
+        self.cc_file = cc_file
 
         # we use the username from the common name
         # to enforce lnk between certificate and ldap user
@@ -211,7 +219,7 @@ class ClientConnectScript(ovpnscript.OpenVPNScript):
         if action == 'connect':
             profile = self.validate_user(common_name, username)
             ip, mask = self.get_ip(username, profile, session_id)
-            self.write_cc(cc_file, ip, mask)
+            self.write_cc(ip, mask, disable=False)
             self.exit0('assigned ip %s to %s/%s' % (ip, common_name, username))
 
         elif action == 'disconnect':

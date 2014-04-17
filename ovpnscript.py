@@ -38,8 +38,7 @@ class OpenVPNScript(object):
 
     # utilities
 
-    @staticmethod
-    def env(var):
+    def env(self, var):
         return os.getenv(var, "")
 
     def log(self, msg=''):
@@ -54,7 +53,8 @@ class OpenVPNScript(object):
     def exit1(self, msg=''):
         if msg != '':
             sys.stderr.write(self.script_path + ': ' + msg + '\n')
-        sys.exit(0)
+        self.exit_error(msg)
+        sys.exit(1)
 
 # --------------------------------------------------------------------------- #
 # Utilities
@@ -144,6 +144,9 @@ class OpenVPNScript(object):
         # check specifics in child classes
         pass
 
+    def exit_error(self, msg=None):
+        # implement specific action on error if exit 1 is nog enough
+        pass
 
     def load_config(self):
         # read config file
