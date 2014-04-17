@@ -43,16 +43,16 @@ class OpenVPNScript(object):
 
     def log(self, msg=''):
         if msg != '':
-            sys.stdout.write(self.script_path + ': ' + msg + '\n')
+            sys.stdout.write(self.script_path + ': ' + str(msg) + '\n')
 
     def exit0(self, msg=''):
         if msg != '':
-            sys.stdout.write(self.script_path + ': ' + msg + '\n')
+            sys.stdout.write(self.script_path + ': ' + str(msg) + '\n')
         sys.exit(0)
 
     def exit1(self, msg=''):
         if msg != '':
-            sys.stderr.write(self.script_path + ': ' + msg + '\n')
+            sys.stderr.write(self.script_path + ': ' + str(msg) + '\n')
         self.exit_error(msg)
         sys.exit(1)
 
