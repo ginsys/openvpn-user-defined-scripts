@@ -1,0 +1,41 @@
+---
+libdir:                     /var/lib/openvpn
+ldap_host:                  ldap-pr-101.mm.org
+ldap_port:                  389
+ldap_userDN:                uid=openvpn-systemuser,ou=systemusers,dc=mm,dc=org
+ldap_userpass:              53c637
+ldap_user_baseDN:           ou=people,dc=mm,dc=org
+ldap_user_searchfilter:     uid=%u
+ldap_group_baseDN:          ou=sslvpn,ou=groups,dc=mm,dc=org
+
+groups:
+    admin:       cn=vpn_admins,ou=sslvpn,ou=groups,dc=mm,dc=org
+    user:        cn=vpn_users,ou=sslvpn,ou=groups,dc=mm,dc=org
+    informix:    cn=vpn_db_informix,ou=sslvpn,ou=groups,dc=mm,dc=org
+    postgres:    cn=vpn_db_postgres,ou=sslvpn,ou=groups,dc=mm,dc=org
+    gis:         cn=vpn_gis,ou=sslvpn,ou=groups,dc=mm,dc=org
+    mercator:    cn=vpn_mercator,ou=sslvpn,ou=groups,dc=mm,dc=org
+groupmember_attr: uniqueMember
+
+profiles:
+# profile to ip range for instance
+    udp1:
+        admin:
+            base:   10.10.100.1
+            count:  126
+            mask:   255.255.255.128
+    tcp1:
+        admin:
+            base:   10.10.101.1
+            count:  126
+            mask:   255.255.255.128
+    udp2:
+        admin:
+            base:   10.10.102.1
+            count:  126
+            mask:   255.255.255.128
+    tcp2:
+        admin:
+            base:   10.10.103.1
+            count:  126
+            mask:   255.255.255.128
