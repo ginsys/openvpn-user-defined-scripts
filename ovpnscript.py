@@ -20,6 +20,7 @@ import os
 import sys
 import yaml
 import ldap
+import syslog
 
 # --------------------------------------------------------------------------- #
 # configuration defaults
@@ -27,7 +28,6 @@ import ldap
 
 DEFAULTS = {    'libdir':       '/var/lib/openvpn',
                 }
-
 
 # --------------------------------------------------------------------------- #
 # OpenVPN User Defined Script base class
@@ -44,15 +44,27 @@ class OpenVPNScript(object):
     def log(self, msg=''):
         if msg != '':
             sys.stdout.write(self.script_path + ': ' + str(msg) + '\n')
+            syslog.openlog(ident='openvpn ' + self.name + ' ' + self.instance,
+                    logoption=0, facility=syslog.LOG_DAEMON)
+            syslog.syslog(syslog.LOG_INFO, msg)
+            syslog.closelog()
 
     def exit0(self, msg=''):
         if msg != '':
             sys.stdout.write(self.script_path + ': ' + str(msg) + '\n')
+            syslog.openlog(ident='openvpn ' + self.name + ' ' + self.instance,
+                    logoption=0, facility=syslog.LOG_DAEMON)
+            syslog.syslog(syslog.LOG_INFO, msg)
+            syslog.closelog()
         sys.exit(0)
 
     def exit1(self, msg=''):
         if msg != '':
             sys.stderr.write(self.script_path + ': ' + str(msg) + '\n')
+            syslog.openlog(ident='openvpn ' + self.name + ' ' + self.instance,
+                    logoption=0, facility=syslog.LOG_DAEMON)
+            syslog.syslog(syslog.LOG_ERR, msg)
+            syslog.closelog()
         self.exit_error(msg)
         sys.exit(1)
 
