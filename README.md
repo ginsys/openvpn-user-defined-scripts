@@ -4,7 +4,7 @@ openvpn-user-defined-scripts
 ovpnscript.py
 ----------
 
-* python base module/sccript for openvpn user-defined scripts
+* python base module/script for openvpn user-defined scripts
 * save state to a shelved file, per instance
 
 ovldapprofile.py
