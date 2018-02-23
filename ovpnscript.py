@@ -26,15 +26,15 @@ import syslog
 # configuration defaults
 # --------------------------------------------------------------------------- #
 
-DEFAULTS = {    'libdir':       '/var/lib/openvpn',
-                }
+DEFAULTS = {'libdir': '/var/lib/openvpn',
+            }
 
 # --------------------------------------------------------------------------- #
 # OpenVPN User Defined Script base class
 # --------------------------------------------------------------------------- #
 
-class OpenVPNScript(object):
 
+class OpenVPNScript(object):
 
     # utilities
 
@@ -45,7 +45,7 @@ class OpenVPNScript(object):
         if msg != '':
             sys.stdout.write(self.script_path + ': ' + str(msg) + '\n')
             syslog.openlog(ident='openvpn ' + self.name + ' ' + self.instance,
-                    logoption=0, facility=syslog.LOG_DAEMON)
+                           logoption=0, facility=syslog.LOG_DAEMON)
             syslog.syslog(syslog.LOG_INFO, msg)
             syslog.closelog()
 
@@ -53,7 +53,7 @@ class OpenVPNScript(object):
         if msg != '':
             sys.stdout.write(self.script_path + ': ' + str(msg) + '\n')
             syslog.openlog(ident='openvpn ' + self.name + ' ' + self.instance,
-                    logoption=0, facility=syslog.LOG_DAEMON)
+                           logoption=0, facility=syslog.LOG_DAEMON)
             syslog.syslog(syslog.LOG_INFO, msg)
             syslog.closelog()
         sys.exit(0)
@@ -62,7 +62,7 @@ class OpenVPNScript(object):
         if msg != '':
             sys.stderr.write(self.script_path + ': ' + str(msg) + '\n')
             syslog.openlog(ident='openvpn ' + self.name + ' ' + self.instance,
-                    logoption=0, facility=syslog.LOG_DAEMON)
+                           logoption=0, facility=syslog.LOG_DAEMON)
             syslog.syslog(syslog.LOG_ERR, msg)
             syslog.closelog()
         self.exit_error(msg)
@@ -75,25 +75,24 @@ class OpenVPNScript(object):
     def ldap_bind(self, userDN, userpass):
 
         con = ldap.initialize(uri='ldap://' +
-                                self.config['ldap_host'] + ':' +
-                                str(self.config['ldap_port']))
+                              self.config['ldap_host'] + ':' +
+                              str(self.config['ldap_port']))
         con.simple_bind_s(userDN, userpass)
         return con
-
 
     def ldap_search_user(self, con, uid):
 
         attrs = []
         base_dn = self.config['ldap_user_baseDN']
-        ldap_filter = '(%s)' % self.config['ldap_user_searchfilter'].replace('%u', uid)
+        ldap_filter = '(%s)' % self.config['ldap_user_searchfilter'].replace(
+            '%u', uid)
 
         results = con.search_s(base_dn, ldap.SCOPE_SUBTREE, ldap_filter, attrs)
         # results is a list of a set of userdn + dict of attributes
-        if len(results) >=1:
+        if len(results) >= 1:
             return results[0]
         else:
             return (None, None)
-
 
     def ldap_memberof(self, con, userDN, groupDN):
 
@@ -101,12 +100,12 @@ class OpenVPNScript(object):
 
         base_dn = self.config['ldap_group_baseDN']
         ldap_filter = '(%s)' % groupDN.split(',')[0]
-        attrs = [ member_attr ]
+        attrs = [member_attr]
 
         results = con.search_s(base_dn, ldap.SCOPE_SUBTREE, ldap_filter, attrs)
         # results is a list of a set of groupdn + dict of attributes
 
-        if len(results) >=1:
+        if len(results) >= 1:
             found_groupDN, attributes = results[0]
             if found_groupDN == groupDN and member_attr in attributes:
                 members = attributes[member_attr]
@@ -125,7 +124,12 @@ class OpenVPNScript(object):
         self.args = args
 
         self.script_path = args[0]
-        self.name = os.path.basename(self.script_path).replace('.py', '').replace('.pyc', '')
+        self.name = os.path.basename(
+            self.script_path).replace(
+            '.py',
+            '').replace(
+            '.pyc',
+            '')
 
         # we need at least one argument, confirming the openvpn instance
         if len(args) >= 2:
@@ -137,14 +141,16 @@ class OpenVPNScript(object):
         self.script_args = args[2:]
 
         # config is at same location as script
-        self.config_path = self.script_path.replace('.py',
-                                            '').replace('.pyc', '') + '.yml'
+        self.config_path = self.script_path.replace(
+            '.py', '').replace('.pyc', '') + '.yml'
         if not os.path.isfile(self.config_path):
             self.exit1('configfile %s not found' % self.config_path)
         self.load_config()
 
         if self.instance not in self.instances:
-            self.exit1('instance %s not found in config file %s' % (self.instance, self.config_path))
+            self.exit1(
+                'instance %s not found in config file %s' %
+                (self.instance, self.config_path))
 
         self.db_file = self.name + '_' + self.instance + '.db'
         self.db_path = os.path.join(self.config['libdir'], self.db_file)
@@ -164,7 +170,7 @@ class OpenVPNScript(object):
         # read config file
         try:
             with open(self.config_path) as f:
-                self.config = yaml.safe_load( f.read() )
+                self.config = yaml.safe_load(f.read())
         except Exception as e:
             self.exit1(str(e))
 
@@ -173,10 +179,10 @@ class OpenVPNScript(object):
         if ('groups' not in self.config or
                 not isinstance(self.config['groups'], dict)):
             self.exit1('missing groups config or groups is not a dictionary')
-        if ('profiles' not in self.config or
-                not isinstance(self.config['profiles'], dict) or
-                any([not isinstance(self.config['profiles'][x], dict) for x in self.config['profiles'].keys()])):
-            self.exit1('missing profiles config or profiles is not a list name: ldapgroupDN')
+        if ('profiles' not in self.config or not isinstance(self.config['profiles'], dict) or any(
+                [not isinstance(self.config['profiles'][x], dict) for x in self.config['profiles'].keys()])):
+            self.exit1(
+                'missing profiles config or profiles is not a list name: ldapgroupDN')
         self.instances = self.config['profiles'].keys()
         self.check_config()
 
@@ -226,7 +232,7 @@ class OpenVPNScript(object):
 
 # --------------------------------------------------------------------------- #
 
+
 if __name__ == '__main__':
     script = OpenVPNScript(sys.argv)
     script.run()
-
